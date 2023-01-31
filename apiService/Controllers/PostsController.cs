@@ -18,7 +18,7 @@ namespace apiService.Controllers
         public async Task<IEnumerable<Post>> Get()
             => await _context.Posts.ToListAsync();
 
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(Post), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetById(int id)
@@ -35,6 +35,33 @@ namespace apiService.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetById), new {id = post.Id}, post);
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Update(int id, Post post)
+        {
+            if (id != post.Id) return BadRequest(); 
+
+            _context.Entry(post).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var postToDelete = await _context.Posts.FindAsync(id);
+            if (postToDelete == null) return NotFound();    
+
+            _context.Posts.Remove(postToDelete);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
