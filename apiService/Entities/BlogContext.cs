@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using apiService.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace apiService.Entities;
@@ -32,13 +33,13 @@ public partial class BlogContext : DbContext
             entity.Property(e => e.Content)
                 .HasColumnType("text")
                 .HasColumnName("content");
-            entity.Property(e => e.CreatedAt)
+            entity.Property(e => e.Created_At)
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
             entity.Property(e => e.Title)
                 .HasMaxLength(255)
                 .HasColumnName("title");
-            entity.Property(e => e.UpdatedAt)
+            entity.Property(e => e.Updated_At)
                 .HasColumnType("datetime")
                 .HasColumnName("updated_at");
         });

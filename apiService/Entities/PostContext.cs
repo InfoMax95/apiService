@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using apiService.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace apiService.Models
+namespace apiService.Entities
 {
     public class PostContext : DbContext
     {
@@ -9,6 +10,6 @@ namespace apiService.Models
         {
         }
 
-        public DbSet<Post> TodoItems { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
     }
 }
