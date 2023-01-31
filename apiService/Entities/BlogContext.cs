@@ -17,8 +17,8 @@ public partial class BlogContext : DbContext
 
     public virtual DbSet<Post> Posts { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseMySQL("server=localhost;port=3306;user=root;password=root;database=blog");
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //    => optionsBuilder.UseMySQL("server=localhost;port=3306;user=root;password=root;database=blog");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
