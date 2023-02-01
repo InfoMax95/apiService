@@ -11,8 +11,8 @@ namespace apiService.Controllers
     [ApiController]
     public class PostsController : ControllerBase
     {
-        private readonly PostContext _context;
-        public PostsController(PostContext context) => _context = context;
+        private readonly BlogApiContext _context;
+        public PostsController(BlogApiContext context) => _context = context;
 
         [HttpGet]
         public async Task<IEnumerable<Post>> Get()

@@ -4,7 +4,7 @@ using System.Net.Http.Json;
 using tracking.client;
 
 HttpClient client = new();
-client.BaseAddress = new Uri("https://localhost:7121");
+client.BaseAddress = new Uri("https://localhost:7171");
 client.DefaultRequestHeaders.Accept.Clear();
 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -23,4 +23,4 @@ if(response.IsSuccessStatusCode)
     Console.WriteLine("No results");
 }
 
-Console.ReadLine();
+Console.Read();

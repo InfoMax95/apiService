@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace apiService.Entities
 {
-    public class PostContext : DbContext
+    public class BlogApiContext : DbContext
     {
-        public PostContext(DbContextOptions<PostContext> options)
+        public BlogApiContext(DbContextOptions<BlogApiContext> options)
         : base(options)
         {
         }
