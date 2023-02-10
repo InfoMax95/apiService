@@ -18,10 +18,11 @@ namespace apiService.Controllers
         public async Task<IEnumerable<Post>> Get()
             => await _context.Posts.ToListAsync();
 
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("{id}")]
         [ProducesResponseType(typeof(Post), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
             var post = await _context.Posts.FindAsync(id);
             return post == null ? NotFound() : Ok(post);
@@ -37,10 +38,11 @@ namespace apiService.Controllers
             return CreatedAtAction(nameof(GetById), new {id = post.Id}, post);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Update(int id, Post post)
+        public async Task<IActionResult> Update([FromRoute] int id, Post post)
         {
             if (id != post.Id) return BadRequest(); 
 
@@ -50,10 +52,11 @@ namespace apiService.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var postToDelete = await _context.Posts.FindAsync(id);
             if (postToDelete == null) return NotFound();    
