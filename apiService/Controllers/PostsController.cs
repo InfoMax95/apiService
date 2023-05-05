@@ -1,4 +1,5 @@
-﻿using apiService.Entities;
+﻿using apiService.Data;
+using apiService.DTO;
 using apiService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,8 +12,8 @@ namespace apiService.Controllers
     [ApiController]
     public class PostsController : ControllerBase
     {
-        private readonly BlogApiContext _context;
-        public PostsController(BlogApiContext context) => _context = context;
+        private readonly DataContext _context;
+        public PostsController(DataContext context) => _context = context;
 
         [HttpGet]
         public async Task<IEnumerable<Post>> Get()
@@ -30,12 +31,20 @@ namespace apiService.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<IActionResult> Create(Post post)
+        public async Task<ActionResult<Post>> Create(PostDTO request)
         {
+            Post post = new Post();
+            post.Title = request.Title;
+            post.Description = request.Description; 
+            post.Subtitle = request.Subtitle;
+            post.Content = request.Content;
+            post.Type = request.Type;
+            post.AuthorID = request.AuthorID;
+
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new {id = post.Id}, post);
+            return Ok(post);
         }
 
         [HttpPut]

@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using System.Data.Entity;
-using apiService.Entities;
-using System.Runtime.Intrinsics.X86;
+using apiService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,21 +16,12 @@ builder.Services.AddCors(c =>
     c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
 
-builder.Services.AddDbContext<BlogApiContext>(opt =>
-    opt.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-//builder.Services.AddDbContext<BlogApiContext>(opt =>
-//    opt.UseInMemoryDatabase(builder("BlogDatabase")));
+builder.Services.AddDbContext<DataContext>(opt =>
+{
+    opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
 var app = builder.Build();
-
-
-//builder.Services.AddEntityFrameworkMySQL().AddDbContext<DbContext>(options => {
-//    options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection"));
-//});
-
-
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
