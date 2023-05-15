@@ -20,7 +20,7 @@ namespace apiService.Models
         public virtual int AuthorID { get; set; }
         [ForeignKey("AuthorID")]
         public virtual Author Authors { get; set; }
-        public DateTime Created_At { get; set; }
-        public DateTime Updated_At { get; set; }
+        public DateTime Created_At { get; set; } = DateTime.Now;
+        public DateTime Updated_At { get; set; } = DateTime.Now;
     }
 }

@@ -11,4 +11,11 @@ namespace apiService.DTO
         public int Type { get; set; }
         public int AuthorID { get; set; }
     }
+
+    public class PostToView 
+    {
+        public Post Posts { get; set; }
+        public Author Author { get; set; }
+        public Typology Typology { get; set; }
+    }
 }

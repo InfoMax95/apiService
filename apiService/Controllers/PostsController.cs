@@ -16,8 +16,18 @@ namespace apiService.Controllers
         public PostsController(DataContext context) => _context = context;
 
         [HttpGet]
-        public async Task<IEnumerable<Post>> Get()
-            => await _context.Posts.ToListAsync();
+        public async Task<ActionResult<IEnumerable<Post>>> Get()
+        {
+            //var posts = await _context.Posts.ToListAsync();
+            var posts = (from c in _context.Posts
+                         join d in _context.Authors
+                         on c.AuthorID equals d.Id
+                         join b in _context.Typologies
+                         on c.Type equals b.Id
+                         //orderby c.Guid descending
+                         select new PostToView { Posts = c, Author = d, Typology = b });
+            return Ok(posts);
+        }
 
         [HttpGet]
         [Route("{id}")]
