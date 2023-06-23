@@ -11,8 +11,7 @@ namespace apiService.Data
         }
 
         public DbSet<Post> Posts { get; set; }
-        public DbSet<Author> Authors { get; set; }
+        public DbSet<Author> Authors { get; set; }   
         public DbSet<Typology> Typologies { get; set; }
-
     }
 }

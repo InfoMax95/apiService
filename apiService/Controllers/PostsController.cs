@@ -1,6 +1,8 @@
 ﻿using apiService.Data;
 using apiService.DTO;
 using apiService.Models;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -13,19 +15,20 @@ namespace apiService.Controllers
     public class PostsController : ControllerBase
     {
         private readonly DataContext _context;
-        public PostsController(DataContext context) => _context = context;
+        private readonly IMapper _mapper;
+        public PostsController(DataContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }  
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Post>>> Get()
         {
-            //var posts = await _context.Posts.ToListAsync();
-            var posts = (from c in _context.Posts
-                         join d in _context.Authors
-                         on c.AuthorID equals d.Id
-                         join b in _context.Typologies
-                         on c.Type equals b.Id
-                         //orderby c.Guid descending
-                         select new PostToView { Posts = c, Author = d, Typology = b });
+            var posts = await _context.Posts
+                .ProjectTo<PostDTO>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+
             return Ok(posts);
         }
 
@@ -33,23 +36,53 @@ namespace apiService.Controllers
         [Route("{id}")]
         [ProducesResponseType(typeof(Post), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetById([FromRoute] int id)
+        public async Task<ActionResult<PostDTO>> GetPostById([FromRoute] int id)
         {
-            var post = await _context.Posts.FindAsync(id);
-            return post == null ? NotFound() : Ok(post);
+            try
+            {
+                var post = await _context.Posts.Where(x => x.Id == id)
+                    .ProjectTo<PostDTO>(_mapper.ConfigurationProvider)
+                    .SingleOrDefaultAsync();
+
+                return post == null ? NotFound() : Ok(post);
+
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);  
+            }
+
+        }
+
+        [HttpGet]
+        [Route("find-by-name/{title}")]
+        [ProducesResponseType(typeof(Post), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<PostDTO>> GetPostByName([FromRoute] string title)
+        {
+            try
+            {
+                var post = await _context.Posts.Where(x => x.Title == title)
+                    .ProjectTo<PostDTO>(_mapper.ConfigurationProvider)
+                    .SingleOrDefaultAsync();
+
+                return post == null ? NotFound() : Ok(post);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<Post>> Create(PostDTO request)
+        public async Task<ActionResult<Post>> CreatePost(PostDTO request)
         {
             Post post = new Post();
             post.Title = request.Title;
             post.Description = request.Description; 
             post.Subtitle = request.Subtitle;
             post.Content = request.Content;
-            post.Type = request.Type;
-            post.AuthorID = request.AuthorID;
 
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
@@ -61,9 +94,13 @@ namespace apiService.Controllers
         [Route("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Update([FromRoute] int id, Post post)
+        public async Task<IActionResult> Update([FromRoute] int id, Post request)
         {
-            if (id != post.Id) return BadRequest(); 
+            var post = await _context.Posts.FindAsync(id);
+            if (post == null) 
+                return NotFound();
+
+            if (id != request.Id) return BadRequest(); 
 
             _context.Entry(post).State = EntityState.Modified;
             await _context.SaveChangesAsync();
