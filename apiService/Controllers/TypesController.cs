@@ -19,21 +19,21 @@ namespace apiService.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Type>>> GetTypes()
+        public async Task<ActionResult<IEnumerable<Typology>>> GetTypes()
         {
             var types = await _context.Typologies.ToListAsync();
             return Ok(types);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Type>> GetType([FromRoute] int id)
+        public async Task<ActionResult<Typology>> GetType([FromRoute] int id)
         {
             var type = await _context.Typologies.FindAsync(id);
             return Ok(type);
         }
 
         [HttpPost("InsertType")]
-        public async Task<ActionResult<Type>> InsertType(TypologyDTO request)
+        public async Task<ActionResult<Typology>> InsertType(TypologyDTO request)
         {
             Typology _type = new Typology();
             _type.Name = request.Name.ToLower();
@@ -47,7 +47,7 @@ namespace apiService.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<ActionResult<Type>> UpdateType([FromRoute] int id, Typology _type)
+        public async Task<ActionResult<Typology>> UpdateType([FromRoute] int id, Typology _type)
         {
             if (id != _type.Id)
             {

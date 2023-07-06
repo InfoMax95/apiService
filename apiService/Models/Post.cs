@@ -20,6 +20,7 @@ namespace apiService.Models
         public virtual int AuthorID { get; set; }
         [ForeignKey("AuthorID")]
         public virtual Author Authors { get; set; }
+        public List<Photo> Photos { get; set; } = new List<Photo>();
         public string Created_At { get; set; } = DateTime.UtcNow.ToLongDateString();
         public string Updated_At { get; set; } = DateTime.UtcNow.ToLongDateString();
     }

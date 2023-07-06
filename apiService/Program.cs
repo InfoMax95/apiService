@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using apiService.Data;
+using apiService.Helpers;
+using apiService.Interfaces;
+using apiService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,9 @@ builder.Services.AddDbContext<DataContext>(opt =>
 });
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
+builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.

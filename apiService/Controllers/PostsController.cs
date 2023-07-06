@@ -1,5 +1,6 @@
 ﻿using apiService.Data;
 using apiService.DTO;
+using apiService.Interfaces;
 using apiService.Models;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -7,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.X509;
+using System.Text.Json;
 
 namespace apiService.Controllers
 {
@@ -16,14 +19,17 @@ namespace apiService.Controllers
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
-        public PostsController(DataContext context, IMapper mapper)
+        private readonly IPhotoService _photoService;
+
+        public PostsController(DataContext context, IMapper mapper, IPhotoService photoService)
         {
             _context = context;
             _mapper = mapper;
+            _photoService = photoService;
         }  
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Post>>> Get()
+        public async Task<ActionResult<IEnumerable<PostDTO>>> Get()
         {
             var posts = await _context.Posts
                 .ProjectTo<PostDTO>(_mapper.ConfigurationProvider)
@@ -78,16 +84,60 @@ namespace apiService.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<Post>> CreatePost(PostDTO request)
         {
+
             Post post = new Post();
             post.Title = request.Title;
             post.Description = request.Description; 
             post.Subtitle = request.Subtitle;
             post.Content = request.Content;
 
+            var author = await _context.Authors.SingleOrDefaultAsync(x => x.Name.Trim().ToLower() == request.AuthorName.Trim().ToLower());
+            if(author != null)
+                post.AuthorID = author.Id;
+            else post.AuthorID = 1;
+
+            var type = await _context.Typologies.SingleOrDefaultAsync(x => x.Name.Trim().ToLower() == request.Type.Trim().ToLower());
+            if (type != null)
+                post.Type = type.Id;
+            else post.Type = 1;
+
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
 
             return Ok(post);
+        }
+
+        [HttpPost("add-photo")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult<Post>> AddPhoto(IFormFile file, int id)
+        {
+            var post = await _context.Posts.FirstOrDefaultAsync(x => x.Id == id);
+            if (post == null)
+                return NotFound();
+
+            var result = await _photoService.AddPhotoAsync(file);
+            if (result.Error != null)
+            {
+                return BadRequest(result.Error.Message);
+            }
+
+            var photo = new Photo
+            {
+                Url = result.SecureUrl.AbsoluteUri,
+                PublicId = result.PublicId
+            };
+
+            if (post.Photos.Count == 0)
+                photo.IsMain = true;
+
+            post.Photos.Add(photo);
+
+            int response = await _context.SaveChangesAsync();
+            if (response > 0) 
+                return NoContent();
+            else 
+                return BadRequest("Problem adding photo");
+
         }
 
         [HttpPut]
@@ -121,6 +171,11 @@ namespace apiService.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private async Task<bool> PostExist(string title)
+        {
+            return await _context.Posts.AnyAsync(x => x.Title.ToLower() == title.ToLower());
         }
     }
 }

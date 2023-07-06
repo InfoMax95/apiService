@@ -10,8 +10,10 @@ namespace apiService.DTO
         public string Subtitle { get; set; }
         public string Description { get; set; }
         public string Type { get; set; }
+        public List<Photo> photos { get; set; }
         public string AuthorName { get; set; }
         public string Created { get; set; } = DateTime.UtcNow.ToLongDateString();
+        public string Updated { get; set; } = DateTime.UtcNow.ToLongDateString();
     }
 
     public class PostToView 

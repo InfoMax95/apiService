@@ -38,6 +38,32 @@ namespace apiService.Data.Migrations
                     b.ToTable("Authors");
                 });
 
+            modelBuilder.Entity("apiService.Models.Photo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsMain")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PublicId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Photos");
+                });
+
             modelBuilder.Entity("apiService.Models.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -51,7 +77,8 @@ namespace apiService.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("Created_At")
+                    b.Property<string>("Created_At")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
@@ -69,7 +96,8 @@ namespace apiService.Data.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("Updated_At")
+                    b.Property<string>("Updated_At")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -106,6 +134,17 @@ namespace apiService.Data.Migrations
                     b.ToTable("Typologies");
                 });
 
+            modelBuilder.Entity("apiService.Models.Photo", b =>
+                {
+                    b.HasOne("apiService.Models.Post", "Post")
+                        .WithMany("Photos")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
             modelBuilder.Entity("apiService.Models.Post", b =>
                 {
                     b.HasOne("apiService.Models.Author", "Authors")
@@ -123,6 +162,11 @@ namespace apiService.Data.Migrations
                     b.Navigation("Authors");
 
                     b.Navigation("Typologies");
+                });
+
+            modelBuilder.Entity("apiService.Models.Post", b =>
+                {
+                    b.Navigation("Photos");
                 });
 #pragma warning restore 612, 618
         }

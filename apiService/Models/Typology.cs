@@ -8,7 +8,7 @@ namespace apiService.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; } = string.Empty;
-        public DateTime createdAt { get; set; }
-        public DateTime updatedAt { get; set; }
+        public DateTime createdAt { get; set; } = DateTime.UtcNow;
+        public DateTime updatedAt { get; set; } = DateTime.UtcNow;
     }
 }
