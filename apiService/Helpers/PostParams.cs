@@ -10,5 +10,7 @@
             get => _pageSize;
             set => _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
         }
+
+        public int Type { get; set; } = 0;
     }
 }

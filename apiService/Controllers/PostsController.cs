@@ -1,15 +1,13 @@
 ﻿using apiService.Data;
 using apiService.DTO;
+using apiService.Extensions;
+using apiService.Helpers;
 using apiService.Interfaces;
 using apiService.Models;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Asn1.X509;
-using System.Text.Json;
 
 namespace apiService.Controllers
 {
@@ -29,13 +27,30 @@ namespace apiService.Controllers
         }  
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PostDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<PagedList<PostDTO>>>> Get([FromQuery] PostParams postParams)
         {
-            var posts = await _context.Posts
-                .ProjectTo<PostDTO>(_mapper.ConfigurationProvider)
-                .ToListAsync();
+            if(!postParams.Type.Equals(0))
+            {
+                var query = _context.Posts.AsQueryable();
+                query = query.Where(t => t.Type == postParams.Type);
 
-            return Ok(posts);
+                var posts = await PagedList<PostDTO>.CreateAsync(query
+                     .AsNoTracking().ProjectTo<PostDTO>(_mapper.ConfigurationProvider),
+                     postParams.PageNumber, postParams.PageSize);
+                Response.AddPaginationHeader(new PaginatorHeader(posts.CurrentPage, posts.PageSize, posts.TotalCount, posts.TotalPage));
+
+                return Ok(posts);
+            } else
+            {
+                var query = _context.Posts.
+                    ProjectTo<PostDTO>(_mapper.ConfigurationProvider)
+                    .AsNoTracking();
+
+                var posts = await PagedList<PostDTO>.CreateAsync(query, postParams.PageNumber, postParams.PageSize);
+                Response.AddPaginationHeader(new PaginatorHeader(posts.CurrentPage, posts.PageSize, posts.TotalCount, posts.TotalPage));
+
+                return Ok(posts);
+            }
         }
 
         [HttpGet]
